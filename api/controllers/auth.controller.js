@@ -69,3 +69,45 @@ export const signin = async (req, res, next) => {
 //It sets the status code to 200 indicating success.
 // It sets a cookie named access_token with the JWT token as its value. The cookie is configured with the httpOnly option set to true, which means it can only be accessed by the server and not by client-side scripts, enhancing security.
 // Finally, it sends a JSON response (json(rest)) containing the user data (rest) except for the password field.
+
+
+export const google = async (req, res, next) => {
+  const { email, name, googlePhotoUrl } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = user._doc;
+      res
+        .status(200)
+        .cookie('access_token', token, {
+          httpOnly: true,
+        })
+        .json(rest);
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+      const newUser = new User({
+        username:
+          name.toLowerCase().split(' ').join('') +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashedPassword,
+        profilePicture: googlePhotoUrl,
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = newUser._doc;
+      res
+        .status(200)
+        .cookie('access_token', token, {
+          httpOnly: true,
+        })
+        .json(rest);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
