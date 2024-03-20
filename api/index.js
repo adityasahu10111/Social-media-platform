@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import router from './routes/user.route.js';
 import authrouter from './routes/auth.route.js'
+import cookieParser from 'cookie-parser';
 
 
 
@@ -17,15 +18,14 @@ mongoose.connect(process.env.Mongo)
 })
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000!');
 });
 
-app.get("/abt",(req,res)=>{
-    res.send("hi there")
-})
+
 
 app.use("/api/user",router)
 app.use("/api/auth",authrouter)
