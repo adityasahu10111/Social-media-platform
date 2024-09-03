@@ -37,10 +37,12 @@ export default function Search() {
       setLoading(true);
       const searchQuery = urlParams.toString();
       const res = await fetch(`/api/post/getposts?${searchQuery}`);
+      
       if (!res.ok) {
         setLoading(false);
         return;
       }
+
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts);
@@ -89,6 +91,7 @@ export default function Search() {
     if (!res.ok) {
       return;
     }
+    
     if (res.ok) {
       const data = await res.json();
       setPosts([...posts, ...data.posts]);
